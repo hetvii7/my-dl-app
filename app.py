@@ -25,7 +25,13 @@ if st.button("Predict"):
     if not user_input.strip():
         st.warning("Please enter a headline.")
     else:
-        seq = tokenizer.texts_to_sequences([user_input])
+        import re
+
+# Clean the input: lowercase + remove punctuation
+user_input_clean = re.sub(r"[^a-zA-Z0-9\s]", "", user_input.lower())
+
+seq = tokenizer.texts_to_sequences([user_input_clean])
+
         padded = pad_sequences(seq, maxlen=MAX_LEN, padding='post')
         prob = float(model.predict(padded)[0][0])  # ✅ ensure clean float
         label = "Real" if prob >= 0.5 else "Fake"
