@@ -26,25 +26,33 @@ if st.button("Predict"):
     if not user_input.strip():
         st.warning("Please enter a headline.")
     else:
-        # Clean the input: lowercase + remove punctuation
+        # Preprocess input
         user_input_clean = re.sub(r"[^a-zA-Z0-9\s]", "", user_input.lower())
 
-        # Convert text to sequences and pad
+        # Convert text to sequence and pad
         seq = tokenizer.texts_to_sequences([user_input_clean])
         padded = pad_sequences(seq, maxlen=MAX_LEN, padding='post')
 
         # Predict
-        prob = float(model.predict(padded)[0][0])
-        prob = np.clip(prob, 0, 1)  # ensures probability is in [0,1]
-        label = "Real" if prob >= 0.5 else "Fake"
-        st.metric("Prediction", f"{label} ({prob*100:.1f}%)")
-        st.progress(min(max(int(prob*100), 0), 100))
+        prob_real = float(model.predict(padded)[0][0])
+        prob_real = np.clip(prob_real, 0, 1)
+        prob_fake = 1 - prob_real
 
-        # Token IDs from cleaned input
+        # Determine label
+        label = "Real" if prob_real >= 0.5 else "Fake"
+
+        # Display prediction and probabilities
+        st.metric("Prediction", f"{label} ({max(prob_real, prob_fake)*100:.1f}%)")
+        st.write(f"Real probability: {prob_real*100:.1f}%")
+        st.write(f"Fake probability: {prob_fake*100:.1f}%")
+
+        # Decode tokens from cleaned input
         tokens = tokenizer.texts_to_sequences([user_input_clean])[0]
-
-        # Convert token IDs back to words
         index_word = {v: k for k, v in tokenizer.word_index.items()}
         decoded_tokens = [index_word.get(t, "<OOV>") for t in tokens[:20]]
 
-        st.write("Tokens (first 20 words):", decoded_tokens)
+        # Highlight OOV words
+        decoded_tokens_highlighted = [
+            f"**{w}**" if w == "<OOV>" else w for w in decoded_tokens
+        ]
+        st.write("Tokens (first 20 words, `<OOV>` highlighted):", decoded_tokens_highlighted)
