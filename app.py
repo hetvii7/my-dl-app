@@ -29,7 +29,7 @@ if st.button("Predict"):
         padded = pad_sequences(seq, maxlen=MAX_LEN, padding='post')
         prob = float(model.predict(padded)[0][0])  # ✅ ensure clean float
         label = "Real" if prob >= 0.5 else "Fake"
-        st.metric("Prediction", f"{label} ({prob:.2f})")
+        st.metric("Prediction", f"{label} ({prob*100:.1f}%)")
         st.progress(min(max(int(prob*100), 0), 100))
         tokens = tokenizer.texts_to_sequences([user_input])[0]
         st.write("Tokens (first 20):", tokens[:20])
