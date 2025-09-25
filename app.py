@@ -32,5 +32,11 @@ if st.button("Predict"):
         st.metric("Prediction", f"{label} ({prob*100:.1f}%)")
         st.progress(min(max(int(prob*100), 0), 100))
         tokens = tokenizer.texts_to_sequences([user_input])[0]
-        st.write("Tokens (first 20):", tokens[:20])
+
+# Convert token IDs back to words
+index_word = {v: k for k, v in tokenizer.word_index.items()}
+decoded_tokens = [index_word.get(t, "<OOV>") for t in tokens[:20]]
+
+st.write("Tokens (first 20 words):", decoded_tokens)
+
 
