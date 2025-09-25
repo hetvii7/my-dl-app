@@ -8,7 +8,7 @@ st.set_page_config(page_title="Fake News Detector", page_icon=":mag_right:")
 
 @st.cache_resource
 def load_assets():
-    model = tf.keras.models.load_model("cnn_model.h5")
+    model = tf.keras.models.load_model("cnn_fake_news_model.h5")
     with open("tokenizer.pkl", "rb") as f:
         tokenizer = pickle.load(f)
     return model, tokenizer
